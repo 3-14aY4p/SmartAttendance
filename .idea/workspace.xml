@@ -2,8 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ba0cf98f-bf05-4d86-b7c3-be9b698d32ee" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CVHandler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DatabaseHandler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Interface.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/scanner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/Database/attendance.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/Database/db_connector.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/export_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/transaction_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/scanner.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,24 +35,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.CV_module.executor&quot;: &quot;Run&quot;,
-    &quot;Python.scanner.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.CVHandler.executor": "Run",
+    "Python.CV_module.executor": "Run",
+    "Python.DatabaseHandler.executor": "Run",
+    "Python.Interface.executor": "Run",
+    "Python.export_handler.executor": "Run",
+    "Python.interface.executor": "Run",
+    "Python.scanner.executor": "Run",
+    "Python.transaction_handler.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/x" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/Frontend" />
+      <recent name="$PROJECT_DIR$/Backend/Database" />
       <recent name="$PROJECT_DIR$/Backend" />
-      <recent name="$PROJECT_DIR$/Database" />
-      <recent name="$PROJECT_DIR$/CV" />
+      <recent name="$PROJECT_DIR$/Frontend" />
     </key>
   </component>
   <component name="TaskManager">
@@ -68,15 +81,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Backend/Database/db_connector.py</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
