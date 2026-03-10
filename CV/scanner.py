@@ -109,6 +109,7 @@ while True:
                 last_detected_id = detected_id
 
             if legal_scans >= STABLE_SCAN_THRESHOLD:
+                # CHANGE THIS TO CONNECT TO THE DATABASE
                 attendance_list.add(detected_id)
 
                 legal_scans = 0
@@ -117,7 +118,7 @@ while True:
         else:
             legal_scans = 0
 
-    # these can be removed after GUI integration;
+    # CAN BE REMOVED AFTER Frontend INTEGRATION;
     # camera preview and user hinting
     cv2.putText(frame,
             f"Detected ID: {detected_id}",
@@ -138,7 +139,7 @@ while True:
     else:
         if legal_scans != 0:
             cv2.putText(frame,
-                f"< stabilizes in {STABLE_SCAN_THRESHOLD - legal_scans}s >",
+                f"< please HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s >",
                 (20, 80),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
