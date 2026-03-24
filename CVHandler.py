@@ -65,7 +65,7 @@ def scanner():
     global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans
 
     # TEMPORARY; make this modifiable for next time
-    class_id = 1
+    subject_id = 1
     today = datetime.now().date()
 
     while True:
@@ -93,17 +93,18 @@ def scanner():
             previous_roi = roi.copy()
             last_scanned = current_time
 
+            # need to transfer these into the GUI so we can add the schedule
             if dh.query_student_id(curr_detected_id).get("success"):
-                if dh.query_enrollment(curr_detected_id, class_id):
+                if dh.query_subject_enrollment(curr_detected_id, subject_id):
                     legal_scans += 1
-                elif dh.query_attendance(curr_detected_id, class_id, today):
+                elif dh.query_attendance(curr_detected_id, subject_id, today):
                     legal_scans = 0
                 else:
                     legal_scans = 1
                     last_detected_id = curr_detected_id
 
                 if legal_scans >= STABLE_SCAN_THRESHOLD:
-                    dh.record_attendance(curr_detected_id, class_id)
+                    dh.record_attendance(curr_detected_id, subject_id)
 
                     legal_scans = 0
                     last_detected_id = None
@@ -120,7 +121,7 @@ def scanner():
             (0, 255, 0),
             2)
 
-        if dh.query_attendance(curr_detected_id, class_id, today):
+        if dh.query_attendance(curr_detected_id, subject_id, today):
             cv2.putText(frame,
                 "ATTENDANCE RECORDED.",
                 (20, 80),

@@ -20,9 +20,16 @@ def get_connection():
         print(f"ERR: {e}")
         return None
 
+# close connection to the database
+def close_connection():
+    if 'conn' in locals() and conn.is_connected():
+            curs.close()
+            conn.close()
+
+
 
 # validate existence of student_id
-def query_student_id(student_id) -> dict:
+def query_student_id(student_id: str) -> dict:
     conn = None
     curs = None
 
@@ -31,7 +38,7 @@ def query_student_id(student_id) -> dict:
         curs = conn.cursor(dictionary=True)
 
         # validate student existence
-        curs.execute("SELECT name FROM students WHERE student_id = %s", (student_id,))
+        curs.execute("SELECT student_name FROM tbl_student WHERE student_id = %s", (student_id))
         student = curs.fetchone()
 
         if not student:
@@ -43,41 +50,8 @@ def query_student_id(student_id) -> dict:
         print(f"ERR: {e}")
         return {"success": False}
 
-    finally:
-        if 'conn' in locals() and conn.is_connected():
-            curs.close()
-            conn.close()
-
-# TBI: def query_enrollment(student_id, class_code, section):
-# for checking if the student is enrolled in the class
-def query_enrollment(student_id, class_id) -> bool:
-    conn = None
-    curs = None
-
-    try:
-        conn = get_connection()
-        curs = conn.cursor(dictionary=True)
-
-        # validate student existence
-        curs.execute("SELECT student_id AND class_id FROM enrollments WHERE student_id = %s AND class_id = %s", (student_id, class_id))
-        student = curs.fetchone()
-
-        if not student:
-            return False
-        else:
-            return True
-
-    except mysql.connector.Error as e:
-        print(f"ERR: {e}")
-        return False
-
-    finally:
-        if 'conn' in locals() and conn.is_connected():
-            curs.close()
-            conn.close()
-
-# checks if student has already logged in
-def query_attendance(student_id, class_id, date_logged):
+# validates if student is enrolled in a subject
+def query_subject_enrollment(student_id: str, subject_id: str) -> dict:
     conn = None
     curs = None
 
@@ -86,12 +60,42 @@ def query_attendance(student_id, class_id, date_logged):
         curs = conn.cursor(dictionary=True)
 
         curs.execute("""
-               SELECT attendance_id
-               FROM attendance
-               WHERE student_id = %s
-                 AND class_id = %s
-                 AND DATE (datetime) = %s
-               """, (student_id, class_id, date_logged))
+            SELECT s.student_name
+            FROM tbl_enrollment e
+            JOIN tbl_student s ON e.student_id = s.student_id
+            JOIN tbl_subjects_enrolled se ON se.enrollment_id = e.enrollment_id
+            WHERE se.subject_id = %s 
+                AND e.student_id = %s
+        """, (subject_id, student_id))
+        student = curs.fetchone()
+
+        if not student:
+            return {"success": False}
+        else:
+            return {"success": True, "name": student}
+
+    except mysql.connector.Error as e:
+        print(f"ERR: {e}")
+        return False
+
+# validates if student has has already recorded attendance for the day
+def query_attendance(student_id: str, subject_id: str, date: str):
+    conn = None
+    curs = None
+
+    try:
+        conn = get_connection()
+        curs = conn.cursor(dictionary=True)
+
+        curs.execute("""
+               SELECT a.attendance_id
+               FROM tbl_attendance a
+               JOIN tbl_enrollment e ON a.student_id = e.student_id
+               JOIN tbl_subjects_enrollment se ON a.subject_id = se.subject_id
+               WHERE a.student_id = %s
+                    AND a.subject_id = %s
+                    AND a.date = %s
+               """, (student_id,  subject_id, date))
 
         if curs.fetchone():
             return True
@@ -100,14 +104,10 @@ def query_attendance(student_id, class_id, date_logged):
         print(f"ERR: {e}")
         return False
 
-    # commented it because of an error; might fix later if needed
-    # finally:
-    #     if 'conn' in locals() and conn.is_connected():
-    #         curs.close()
-    #         conn.close()
+
 
 # for writing into database
-def record_attendance(student_id, class_id):
+def record_attendance(student_id: str, subject_id: str, instructor_id: str, class_start: str, class_end: str):
     conn = None
     curs = None
 
@@ -115,23 +115,28 @@ def record_attendance(student_id, class_id):
         conn = get_connection()
         curs = conn.cursor(dictionary=True)
 
+        # date = datetime.now().strftime('%Y-%m-%d')
+        time = datetime.now().strftime('%H:%M:%S')
+        status: str = ""
+
+        # command to alter attendance_status
+        # this determines if student is LATE
+        if class_start <= time <= class_end - 10:
+            status = "Present"
+        elif time >= class_start + 10:
+            status = "Late"
+        elif time > class_end:
+            status = "Absent"
+
+        # date and time is set to input current date and time upon recording
         sql = """
-              INSERT INTO attendance (class_id, student_id, datetime, status)
-              VALUES (%s, %s, %s, %s) \
+              INSERT INTO tbl_attendance (subject_id, instructor_id, student_id, class_start, class_end, attendance_status)
+              VALUES (%s, %s, %s, %s, %s, %s) \
               """
-        # ensures the date format matches the SQL column ('YYYY-MM-DD HH:MM:SS')
-        curs.execute(sql, (class_id, student_id, datetime.now(), "Present"))
+
+        curs.execute(sql, (subject_id, instructor_id, student_id, class_start, class_end, status))
         conn.commit()
 
     except mysql.connector.Error as e:
         print(f"ERR: {e}")
         return False
-
-    finally:
-        if 'conn' in locals() and conn.is_connected():
-            curs.close()
-            conn.close()
-
-# for exporting into csv
-def export_attendance(class_id, date):
-    pass
