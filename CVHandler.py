@@ -30,7 +30,12 @@ legal_scans: int = 0
 # tesseract config for OCR
 conf = r"--psm 7 --oem 1 tessedit_char_whitelist=0123456789-AI"
 
-
+# added shared scan data for HTML/Flask frontend
+scan_data = {
+    "student_id": "",
+    "student_name": "",
+    "status": "Waiting for scan..."
+}
 
 camera = cv2.VideoCapture(0) # change to (1) if external camera
 
@@ -60,9 +65,13 @@ def ocr(roi):
     else:
         return None
 
-# MAIN LOOP
-def scanner():
-    global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans
+# added function for frontend route /scan_data
+def get_scan_data():
+    return scan_data
+
+# added function for HTML live camera preview
+def generate_frames():
+    global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans, scan_data
 
     # TEMPORARY; make this modifiable for next time
     subject_id = 1
@@ -93,23 +102,58 @@ def scanner():
             previous_roi = roi.copy()
             last_scanned = current_time
 
-            # need to transfer these into the GUI so we can add the schedule
-            if dh.query_student_id(curr_detected_id).get("success"):
-                if dh.query_subject_enrollment(curr_detected_id, subject_id):
-                    legal_scans += 1
-                elif dh.query_attendance(curr_detected_id, subject_id, today):
-                    legal_scans = 0
+            # added guard so database is not queried with None
+            if curr_detected_id:
+                student_result = dh.query_student_id(curr_detected_id)
+
+                # changed stored query result first so it can also be reused for frontend data
+                if student_result.get("success"):
+                    # added attempt to read name if available from database result
+                    student_name = (
+                        student_result.get("student_name")
+                        or student_result.get("name")
+                        or student_result.get("full_name")
+                        or ""
+                    )
+
+                    # need to transfer these into the GUI so we can add the schedule
+                    # changed this condition to preserve your original logic exactly
+                    if dh.query_subject_enrollment(curr_detected_id, subject_id):
+                        legal_scans += 1
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = f"< please HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s >"
+                    elif dh.query_attendance(curr_detected_id, subject_id, today):
+                        legal_scans = 0
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "ATTENDANCE RECORDED."
+                    else:
+                        legal_scans = 1
+                        last_detected_id = curr_detected_id
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = f"< please HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s >"
+
+                    if legal_scans >= STABLE_SCAN_THRESHOLD:
+                        dh.record_attendance(curr_detected_id, subject_id)
+
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "ATTENDANCE RECORDED."
+
+                        legal_scans = 0
+                        last_detected_id = None
                 else:
-                    legal_scans = 1
-                    last_detected_id = curr_detected_id
-
-                if legal_scans >= STABLE_SCAN_THRESHOLD:
-                    dh.record_attendance(curr_detected_id, subject_id)
-
                     legal_scans = 0
-                    last_detected_id = None
+                    scan_data["student_id"] = curr_detected_id
+                    scan_data["student_name"] = ""
+                    scan_data["status"] = "Student ID not found."
             else:
                 legal_scans = 0
+                scan_data["student_id"] = ""
+                scan_data["student_name"] = ""
+                scan_data["status"] = "Waiting for scan..."
 
         # CAN BE REMOVED AFTER Frontend INTEGRATION;
         # camera preview and user hinting
@@ -121,7 +165,120 @@ def scanner():
             (0, 255, 0),
             2)
 
-        if dh.query_attendance(curr_detected_id, subject_id, today):
+        # changed this part to use scan_data status so HTML and frame text match
+        cv2.putText(frame,
+            scan_data["status"],
+            (20, 80),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 255),
+            2)
+
+        # added encoding for browser MJPEG stream
+        ret, buffer = cv2.imencode(".jpg", frame)
+        frame_bytes = buffer.tobytes()
+
+        yield (
+            b"--frame\r\n"
+            b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
+        )
+
+# MAIN LOOP
+def scanner():
+    global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans, scan_data
+
+    # TEMPORARY; make this modifiable for next time
+    subject_id = 1
+    today = datetime.now().date()
+
+    while True:
+        # read camera frames
+        retval, frame = camera.read()
+        if not retval:
+            break
+
+        # draw id_area/roi rectangle
+        h, w, _ = frame.shape
+        x1 = int(w * 0.3)
+        y1 = int(h * 0.55)
+        x2 = int(w * 0.7)
+        y2 = int(h * 0.7)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+        roi = frame[y1:y2, x1:x2]
+        current_time = time.time()
+
+        # scans only after each interval has passed; saves on resources
+        if current_time - last_scanned > scan_interval:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            curr_detected_id = ocr(roi)
+            previous_roi = roi.copy()
+            last_scanned = current_time
+
+            # changed added guard so database is not queried with None
+            if curr_detected_id:
+                student_result = dh.query_student_id(curr_detected_id)
+
+                # need to transfer these into the GUI so we can add the schedule
+                if student_result.get("success"):
+                    # added attempt to read name if available from database result
+                    student_name = (
+                        student_result.get("student_name")
+                        or student_result.get("name")
+                        or student_result.get("full_name")
+                        or ""
+                    )
+
+                    if dh.query_subject_enrollment(curr_detected_id, subject_id):
+                        legal_scans += 1
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = f"< please HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s >"
+                    elif dh.query_attendance(curr_detected_id, subject_id, today):
+                        legal_scans = 0
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "ATTENDANCE RECORDED."
+                    else:
+                        legal_scans = 1
+                        last_detected_id = curr_detected_id
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = f"< please HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s >"
+
+                    if legal_scans >= STABLE_SCAN_THRESHOLD:
+                        dh.record_attendance(curr_detected_id, subject_id)
+
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "ATTENDANCE RECORDED."
+
+                        legal_scans = 0
+                        last_detected_id = None
+                else:
+                    legal_scans = 0
+                    scan_data["student_id"] = curr_detected_id
+                    scan_data["student_name"] = ""
+                    scan_data["status"] = "Student ID not found."
+            else:
+                legal_scans = 0
+                scan_data["student_id"] = ""
+                scan_data["student_name"] = ""
+                scan_data["status"] = "Waiting for scan..."
+
+        # CAN BE REMOVED AFTER Frontend INTEGRATION;
+        # camera preview and user hinting
+        cv2.putText(frame,
+            f"Detected ID: {curr_detected_id}",
+            (20, 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 0),
+            2)
+
+        # changed this block to avoid querying attendance with None and to keep GUI data synced
+        if scan_data["status"] == "ATTENDANCE RECORDED.":
             cv2.putText(frame,
                 "ATTENDANCE RECORDED.",
                 (20, 80),
