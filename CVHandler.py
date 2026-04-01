@@ -30,7 +30,7 @@ legal_scans: int = 0
 # tesseract config for OCR
 conf = r"--psm 7 --oem 1 tessedit_char_whitelist=0123456789-AI"
 
-# added shared scan data for HTML/Flask frontend
+# shared state for frontend
 scan_data = {
     "student_id": "",
     "student_name": "",
@@ -65,11 +65,11 @@ def ocr(roi):
     else:
         return None
 
-# added function for frontend route /scan_data
+# returns scan data to Flask
 def get_scan_data():
     return scan_data
 
-# added function for HTML live camera preview
+# camera streaming (replaces cv2.imshow for web)
 def generate_frames():
     global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans, scan_data
 
@@ -102,8 +102,9 @@ def generate_frames():
             previous_roi = roi.copy()
             last_scanned = current_time
 
-            # added guard so database is not queried with None
+            # guard before DB queries
             if curr_detected_id:
+                # reused query result
                 student_result = dh.query_student_id(curr_detected_id)
 
                 # changed stored query result first so it can also be reused for frontend data
@@ -174,7 +175,7 @@ def generate_frames():
             (0, 255, 255),
             2)
 
-        # added encoding for browser MJPEG stream
+        # converts frames for browser streaming
         ret, buffer = cv2.imencode(".jpg", frame)
         frame_bytes = buffer.tobytes()
 
