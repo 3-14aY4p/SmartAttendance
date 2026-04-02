@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --white: #fafafa;
+    --offwhite: #fcf6f1;
+    --graywhite: #f6f6f6;
+
+    --black: #2a2725;
+    --darkgray: #5d5752;
+    --gray: #908780;
+    --lightgray: #c3b7ad;
+    --gold: #ffd700;
+}

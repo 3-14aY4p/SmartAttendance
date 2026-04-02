@@ -4,6 +4,9 @@ from datetime import datetime
 
 
 
+conn = None
+curs = None
+
 # connect to database
 def get_connection():
     try:
@@ -30,9 +33,6 @@ def close_connection():
 
 # validate existence of student_id
 def query_student_id(student_id: str) -> dict:
-    conn = None
-    curs = None
-
     try:
         conn = get_connection()
         curs = conn.cursor(dictionary=True)
@@ -52,9 +52,6 @@ def query_student_id(student_id: str) -> dict:
 
 # validates if student is enrolled in a subject
 def query_subject_enrollment(student_id: str, subject_id: str) -> dict:
-    conn = None
-    curs = None
-
     try:
         conn = get_connection()
         curs = conn.cursor(dictionary=True)
@@ -78,11 +75,8 @@ def query_subject_enrollment(student_id: str, subject_id: str) -> dict:
         print(f"ERR: {e}")
         return False
 
-# validates if student has has already recorded attendance for the day
-def query_attendance(student_id: str, subject_id: str, date: str):
-    conn = None
-    curs = None
-
+# validates if student has has already recorded PRESENT or LATE for the day
+def query_attendance(student_id: str, subject_id: str, date: str) -> bool:
     try:
         conn = get_connection()
         curs = conn.cursor(dictionary=True)
@@ -95,7 +89,8 @@ def query_attendance(student_id: str, subject_id: str, date: str):
                WHERE a.student_id = %s
                     AND a.subject_id = %s
                     AND a.date = %s
-               """, (student_id,  subject_id, date))
+                    AND a.attendance_status = %s
+               """, (student_id,  subject_id, "Present" or "Late"))
 
         if curs.fetchone():
             return True
@@ -107,15 +102,12 @@ def query_attendance(student_id: str, subject_id: str, date: str):
 
 
 # for writing into database
-def record_attendance(student_id: str, subject_id: str, instructor_id: str, class_start: str, class_end: str):
-    conn = None
-    curs = None
-
+def record_attendance(student_id: str, subject_id: str, instructor_id: str, class_start: str, class_end: str) -> void:
     try:
         conn = get_connection()
         curs = conn.cursor(dictionary=True)
 
-        # date = datetime.now().strftime('%Y-%m-%d')
+        date = datetime.now().strftime('%Y-%m-%d')
         time = datetime.now().strftime('%H:%M:%S')
         status: str = ""
 
