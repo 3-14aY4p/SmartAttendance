@@ -94,8 +94,8 @@ CREATE TABLE `tbl_attendance` (
   `subject_id` varchar(20) DEFAULT NULL,
   `instructor_id` varchar(20) DEFAULT NULL,
   `student_id` varchar(20) DEFAULT NULL,
-  `date` date DEFAULT curdate(),
-  `time` time DEFAULT curtime(),
+  `date` date DEFAULT NULL,
+  `time` time DEFAULT NULL,
   `class_start` time DEFAULT NULL,
   `class_end` time DEFAULT NULL,
   `attendance_status` varchar(20) DEFAULT "Absent"
@@ -174,10 +174,14 @@ ALTER TABLE `tbl_enrollment`
 -- Constraints for table `tbl_attendance`
 --
 ALTER TABLE `tbl_attendance`
-  ADD CONSTRAINT `tbl_attendance_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `tbl_student` (`student_id`),
+  ADD CONSTRAINT `tbl_attendance_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `tbl_student` (`student_id`);
   ADD CONSTRAINT `tbl_attendance_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `tbl_subject` (`subject_id`),
   ADD CONSTRAINT `tbl_attendance_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `tbl_instructor` (`instructor_id`);
   
+ALTER TABLE `tbl_attendance`
+  ALTER date SET DEFAULT curdate(); 
+  ALTER time SET DEFAULT curtime(); 
+
 --
 -- Constraints for table `tbl_enrollment`
 --
