@@ -38,7 +38,7 @@ conf = r"--psm 7 --oem 1 tessedit_char_whitelist=0123456789-AI"
 scan_data = {
     "student_id": "",
     "student_name": "",
-    "scan_status": "Waiting for scan...",
+    "status": "Waiting for scan...",
 }
 
 # should be editable through GUI
@@ -56,13 +56,24 @@ camera = cv2.VideoCapture(0) # change to (1) if external camera
 def get_scan_data() -> dict:
     return scan_data
 
-def draw_rect(frame, color: tuple):
+def convert(time):
+    format = '%I:%M%p'
+    time_str = datetime.strptime(time, "%H:%M").time()
+
+    return time_str
+
+def get_rect(frame):
     h, w, _ = frame.shape
     x1 = int(w * 0.3)
     y1 = int(h * 0.55)
     x2 = int(w * 0.7)
     y2 = int(h * 0.7)
-    
+
+    return x1, y1, x2, y2
+
+def draw_rect(frame, color: tuple):
+    x1, y1, x2, y2 = get_rect(frame)
+
     # cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
     
     cv2.line(frame, (x1,y1), (x1+15,y1), color, 2)
@@ -73,8 +84,6 @@ def draw_rect(frame, color: tuple):
     cv2.line(frame, (x2,y1), (x2,y1+15), color, 2)
     cv2.line(frame, (x2,y2), (x2-15,y2), color, 2)
     cv2.line(frame, (x2,y2), (x2,y2-15), color, 2)
-
-    return x1, y1, x2, y2
 
 # read ROI and run the OCR to detect the ID in frame
 def scan_for_id(roi) -> str:
@@ -104,13 +113,18 @@ def scan_for_id(roi) -> str:
         return None
 
 # scan and validate existence of student and attendance
-def validate_attendance(frame, roi) -> void:
+def validate_attendance(frame, roi, instructor_id: str = '005', class_start: str = "07:30", class_end: str = "9:00") -> void:
     global current_time, last_scanned, curr_detected_id, last_detected_id, previous_roi, legal_scans
     
     # date and time today
-    td_date = datetime.now().strftime('%Y-%m-%d')
-    td_time = datetime.now().strftime('%H:%M:%S')
+    td_date = datetime.now().date()
+    td_time = datetime.now().time()
     
+    if legal_scans > 0:
+        draw_rect(frame, color_grn)
+    else: 
+        draw_rect(frame, color_red)
+
     current_time = time.time()
     if current_time - last_scanned > scan_interval:
 
@@ -124,36 +138,40 @@ def validate_attendance(frame, roi) -> void:
 
             if student.get("success"):
                 student_name = (
-                    student.get("student_name")
+                    student.get("name")
                     or ""
                 )
 
+                has_record = False
+                if dh.query_attendance(curr_detected_id, subject_id, td_date):
+                    has_record = True
+                
                 # validate student's enrollment on a subject
                 if dh.query_subject_enrollment(curr_detected_id, subject_id):
-                    legal_scans += 1
-                    scan_data["student_id"] = curr_detected_id
-                    scan_data["student_name"] = student_name
-                    scan_data["scan_status"] = f"HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s"
+                    if has_record:
+                        legal_scans = 0
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "Attendance record found."
+                    else:
+                        legal_scans += 1
+                        scan_data["student_id"] = curr_detected_id
+                        scan_data["student_name"] = student_name
+                        scan_data["status"] = "HOLD ID Card in place."
                 
-                elif dh.query_attendance(curr_detected_id, subject_id, td_date):
-                    legal_scans = 0
-                    scan_data["student_id"] = curr_detected_id
-                    scan_data["student_name"] = student_name
-                    scan_data["scan_status"] = f"Attendance record FOUND."
-
                 else:
                     legal_scans = 1
                     last_detected_id = curr_detected_id
                     scan_data["student_id"] = curr_detected_id
                     scan_data["student_name"] = student_name
-                    scan_data["scan_status"] = f"HOLD for {STABLE_SCAN_THRESHOLD - legal_scans}s"
+                    scan_data["status"] = "HOLD ID Card in place."
 
-                if legal_scans >= STABLE_SCAN_THRESHOLD:
-                    dh.record_attendance(curr_detected_id, subject_id)
+                if legal_scans >= STABLE_SCAN_THRESHOLD and not has_record:
+                    dh.record_attendance(curr_detected_id, subject_id, instructor_id, convert(class_start), convert(class_end))
 
                     scan_data["student_id"] = curr_detected_id
                     scan_data["student_name"] = student_name
-                    scan_data["status"] = "ATTENDANCE RECORDED."
+                    scan_data["status"] = "Attendance successfully recorded."
 
                     legal_scans = 0
                     last_detected_id = None
@@ -172,8 +190,6 @@ def validate_attendance(frame, roi) -> void:
 
 
 
-    
-
 # MAIN CAMERA LOOP
 def generate_frames():
     while True:
@@ -183,9 +199,9 @@ def generate_frames():
             break
 
         # draw id_area/roi rectangle
-        x1, y1, x2, y2 = draw_rect(frame, color_red)
-
+        x1, y1, x2, y2 = get_rect(frame)
         roi = frame[y1:y2, x1:x2]
+        
         validate_attendance(frame, roi)
 
         # converts frames for browser streaming

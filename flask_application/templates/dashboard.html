@@ -1,12 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Attendance System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    
+  <div class="site-shell">
+    <div class="viewport-16x9">
+      <div class="app-caption">Dashboard</div>
+
+      <div class="content-area">
+        <div class="page-frame">
+          <div class="topbar">
+            <a class="topbar-link active" href="/" data-screen-link>
+              <i class="bi bi-bar-chart-line-fill"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="topbar-link" href="/scanner" data-screen-link>
+              <i class="bi bi-camera"></i>
+              <span>Scanner</span>
+            </a>
+            <a class="topbar-link" href="/attendance-log" data-screen-link>
+              <i class="bi bi-journal-check"></i>
+              <span>Attendance Log</span>
+            </a>
+            <a class="topbar-link" href="/class-list" data-screen-link>
+              <i class="bi bi-layout-text-sidebar-reverse"></i>
+              <span>Class List</span>
+            </a>
+          </div>
+
+          <div class="page-body">
+            <div class="page-panel dashboard-page">
+              <div class="dashboard-left">
+                <div class="dashboard-top">
+                  <div class="stat-card">
+                    <div class="stat-label">Present</div>
+                    <div class="stat-value">0% Present</div>
+                    <div class="stat-sub">0 out of 0</div>
+                  </div>
+
+                  <div class="stat-card">
+                    <div class="stat-label">Late</div>
+                    <div class="stat-value">0% Late</div>
+                    <div class="stat-sub">0 out of 0</div>
+                  </div>
+
+                  <div class="stat-card">
+                    <div class="stat-label">Absent</div>
+                    <div class="stat-value">0% Absent</div>
+                    <div class="stat-sub">0 out of 0</div>
+                  </div>
+                </div>
+
+                <div class="dashboard-center">
+                  <div class="distribution-card">
+                    <div class="distribution-title">Attendance Distribution</div>
+
+                    <div class="distribution-row">
+                      <div>Present</div>
+                      <div class="bar-shell"></div>
+                    </div>
+
+                    <div class="distribution-row">
+                      <div>Late</div>
+                      <div class="bar-shell"></div>
+                    </div>
+
+                    <div class="distribution-row">
+                      <div>Absent</div>
+                      <div class="bar-shell"></div>
+                    </div>
+                  </div>
+
+                  <div class="donut-card">
+                    <div class="donut"></div>
+                  </div>
+
+                  <div class="performers-card">
+                    <div class="performers-title">Top Performing Students</div>
+                    <div class="performers-empty">No records available</div>
+                  </div>
+                </div>
+
+                <div class="activity-card">
+                  <div class="activity-title">Recent Activity</div>
+                  <table class="activity-table">
+                    <tbody>
+                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="dashboard-timebar">
+                  MON, FEB 16, 2026 &nbsp; || &nbsp; 11:00 AM
+                </div>
+              </div>
+
+              <div class="dashboard-right">
+                <div class="section-title-dark">Class Overview</div>
+
+                <div class="info-card-dark">
+                  <div class="info-group">
+                    <div class="info-heading">Class</div>
+                    <div class="info-text">ICT 110</div>
+                  </div>
+
+                  <div class="info-group">
+                    <div class="info-heading">Summary</div>
+                    <div class="info-text">Attendance monitoring dashboard with live scanner integration and student attendance tracking.</div>
+                  </div>
+                </div>
+
+                <div class="status-card-light">
+                  <div class="info-heading">Current Status</div>
+                  <div class="info-text">No active attendance record yet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
