@@ -8,121 +8,99 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-  <div class="site-shell">
-    <div class="viewport-16x9">
-      <div class="app-caption">Dashboard</div>
+  <div class="shell">
+    <div class="view">
+      <div class="cap">Dashboard</div>
 
-      <div class="content-area">
-        <div class="page-frame">
-          <div class="topbar">
-            <a class="topbar-link active" href="/" data-screen-link>
-              <i class="bi bi-bar-chart-line-fill"></i>
-              <span>Dashboard</span>
+      <div class="wrap">
+        <div class="frame">
+          <div class="nav">
+            <a class="nav-a active" href="/" data-screen-link>
+              <i class="bi bi-bar-chart-line-fill"></i><span>Dashboard</span>
             </a>
-            <a class="topbar-link" href="/scanner" data-screen-link>
-              <i class="bi bi-camera"></i>
-              <span>Scanner</span>
+            <a class="nav-a" href="/scanner" data-screen-link>
+              <i class="bi bi-camera"></i><span>Scanner</span>
             </a>
-            <a class="topbar-link" href="/attendance-log" data-screen-link>
-              <i class="bi bi-journal-check"></i>
-              <span>Attendance Log</span>
+            <a class="nav-a" href="/attendance-log" data-screen-link>
+              <i class="bi bi-journal-check"></i><span>Attendance Log</span>
             </a>
-            <a class="topbar-link" href="/class-list" data-screen-link>
-              <i class="bi bi-layout-text-sidebar-reverse"></i>
-              <span>Class List</span>
+            <a class="nav-a" href="/class-list" data-screen-link>
+              <i class="bi bi-layout-text-sidebar-reverse"></i><span>Class List</span>
             </a>
           </div>
 
-          <div class="page-body">
-            <div class="page-panel dashboard-page">
-              <div class="dashboard-left">
-                <div class="dashboard-top">
-                  <div class="stat-card">
-                    <div class="stat-label">Present</div>
-                    <div class="stat-value">0% Present</div>
-                    <div class="stat-sub">0 out of 0</div>
+          <div class="body">
+            <div class="page db">
+              <div class="db-l">
+                <div class="db-top">
+                  <div class="box db-stat">
+                    <div class="db-k">Present</div>
+                    <div class="db-v">0% Present</div>
+                    <div class="db-s">0 out of 0</div>
                   </div>
-
-                  <div class="stat-card">
-                    <div class="stat-label">Late</div>
-                    <div class="stat-value">0% Late</div>
-                    <div class="stat-sub">0 out of 0</div>
+                  <div class="box db-stat">
+                    <div class="db-k">Late</div>
+                    <div class="db-v">0% Late</div>
+                    <div class="db-s">0 out of 0</div>
                   </div>
-
-                  <div class="stat-card">
-                    <div class="stat-label">Absent</div>
-                    <div class="stat-value">0% Absent</div>
-                    <div class="stat-sub">0 out of 0</div>
+                  <div class="box db-stat">
+                    <div class="db-k">Absent</div>
+                    <div class="db-v">0% Absent</div>
+                    <div class="db-s">0 out of 0</div>
                   </div>
                 </div>
 
-                <div class="dashboard-center">
-                  <div class="distribution-card">
-                    <div class="distribution-title">Attendance Distribution</div>
-
-                    <div class="distribution-row">
-                      <div>Present</div>
-                      <div class="bar-shell"></div>
-                    </div>
-
-                    <div class="distribution-row">
-                      <div>Late</div>
-                      <div class="bar-shell"></div>
-                    </div>
-
-                    <div class="distribution-row">
-                      <div>Absent</div>
-                      <div class="bar-shell"></div>
-                    </div>
+                <div class="db-mid">
+                  <div class="box db-dist">
+                    <div class="db-dist-t">Attendance Distribution</div>
+                    <div class="db-row"><div>Present</div><div class="db-bar"></div></div>
+                    <div class="db-row"><div>Late</div><div class="db-bar"></div></div>
+                    <div class="db-row"><div>Absent</div><div class="db-bar"></div></div>
                   </div>
 
-                  <div class="donut-card">
-                    <div class="donut"></div>
+                  <div class="box db-donut-wrap">
+                    <div class="db-donut"></div>
                   </div>
 
-                  <div class="performers-card">
-                    <div class="performers-title">Top Performing Students</div>
-                    <div class="performers-empty">No records available</div>
+                  <div class="box db-topper">
+                    <div class="db-topper-t">Top Performing Students</div>
+                    <div class="db-topper-e">No records available</div>
                   </div>
                 </div>
 
-                <div class="activity-card">
-                  <div class="activity-title">Recent Activity</div>
-                  <table class="activity-table">
+                <div class="box db-act">
+                  <div class="db-act-t">Recent Activity</div>
+                  <table class="db-act-tab">
                     <tbody>
-                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
-                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
-                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
-                      <tr><td class="activity-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="db-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="db-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="db-time">0:00</td><td>No activity available</td></tr>
+                      <tr><td class="db-time">0:00</td><td>No activity available</td></tr>
                     </tbody>
                   </table>
                 </div>
 
-                <div class="dashboard-timebar">
-                  MON, FEB 16, 2026 &nbsp; || &nbsp; 11:00 AM
-                </div>
+                <div class="db-foot">MON, FEB 16, 2026 &nbsp; || &nbsp; 11:00 AM</div>
               </div>
 
-              <div class="dashboard-right">
-                <div class="section-title-dark">Class Overview</div>
+              <div class="db-r">
+                <div class="ttl-dark">Class Overview</div>
 
-                <div class="info-card-dark">
-                  <div class="info-group">
-                    <div class="info-heading">Class</div>
-                    <div class="info-text">ICT 110</div>
+                <div class="info-dark">
+                  <div style="margin-bottom:1.2vw;">
+                    <div class="ih">Class</div>
+                    <div class="it">ICT 110</div>
                   </div>
-
-                  <div class="info-group">
-                    <div class="info-heading">Summary</div>
-                    <div class="info-text">Attendance monitoring dashboard with live scanner integration and student attendance tracking.</div>
+                  <div>
+                    <div class="ih">Summary</div>
+                    <div class="it">Attendance monitoring dashboard with live scanner integration and student attendance tracking.</div>
                   </div>
                 </div>
 
-                <div class="status-card-light">
-                  <div class="info-heading">Current Status</div>
-                  <div class="info-text">No active attendance record yet.</div>
+                <div class="info-lite">
+                  <div class="ih">Current Status</div>
+                  <div class="it">No active attendance record yet.</div>
                 </div>
               </div>
             </div>
@@ -132,7 +110,6 @@
       </div>
     </div>
   </div>
-
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

@@ -8,44 +8,40 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-  <div class="site-shell">
-    <div class="viewport-16x9">
-      <div class="app-caption">Class Item</div>
+  <div class="shell">
+    <div class="view">
+      <div class="cap">Class Item</div>
 
-      <div class="content-area">
-        <div class="page-frame">
-          <div class="page-body classitem-body">
-            <div class="page-panel classitem-page">
-              <div class="classitem-header">
-                <a class="classitem-back" href="/attendance-list" aria-label="Back to Class List">‹</a>
-                <div class="classitem-title">
-                  April 14, 2026 : Tuesday &nbsp; || &nbsp; 9:49 AM &nbsp; || &nbsp; ICT-110
-                </div>
+      <div class="wrap">
+        <div class="frame">
+          <div class="body ci-body">
+            <div class="page ci">
+              <div class="ci-head">
+                <a class="ci-back" href="/class-list" aria-label="Back to Class List">‹</a>
+                <div class="ci-ttl">April 14, 2026 : Tuesday &nbsp; || &nbsp; 9:49 AM &nbsp; || &nbsp; ICT-110</div>
               </div>
 
-              <div class="table-shell classitem-table">
-                <div class="table-head classitem-table-head">
+              <div class="tbl ci-tab">
+                <div class="th ci-h">
                   <div>Time</div>
                   <div>Student ID</div>
                   <div>Student Name</div>
                   <div>Status</div>
                 </div>
 
-                <div class="classitem-table-rows">
-                  <div class="table-row classitem-table-row"><div></div><div></div><div></div><div></div></div>
-                  <div class="table-row classitem-table-row"><div></div><div></div><div></div><div></div></div>
-                  <div class="table-row classitem-table-row"><div></div><div></div><div></div><div></div></div>
-                  <div class="table-row classitem-table-row"><div></div><div></div><div></div><div></div></div>
-                  <div class="table-row classitem-table-row"><div></div><div></div><div></div><div></div></div>
+                <div class="ci-rows">
+                  <div class="tr ci-rw"><div></div><div></div><div></div><div></div></div>
+                  <div class="tr ci-rw"><div></div><div></div><div></div><div></div></div>
+                  <div class="tr ci-rw"><div></div><div></div><div></div><div></div></div>
+                  <div class="tr ci-rw"><div></div><div></div><div></div><div></div></div>
+                  <div class="tr ci-rw"><div></div><div></div><div></div><div></div></div>
                 </div>
               </div>
 
-              <div class="classitem-footer">
-                <button class="pill-btn">
-                  <i class="bi bi-download"></i>
-                  <span>Export Sheet</span>
+              <div class="ci-foot">
+                <button class="btn-pill">
+                  <i class="bi bi-download"></i><span>Export Sheet</span>
                 </button>
               </div>
             </div>
@@ -54,7 +50,6 @@
       </div>
     </div>
   </div>
-
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
