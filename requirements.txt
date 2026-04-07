@@ -1,0 +1,7 @@
+flet
+opencv-python
+pytesseract
+numpy
+mysql-connector-python
+pandas
+pyinstaller
