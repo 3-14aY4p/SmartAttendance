@@ -14,11 +14,18 @@ def main(page: ft.Page):
     page.title = "SASs: Smart Attendance System"
     page.theme_mode = ft.ThemeMode.DARK
     
-    WIDTH, HEIGHT = 1280, 720
+    WIDTH, HEIGHT = 1280, 780
 
     page.window_resizable = False
+    page.window.minimizable = False
     page.window.width  = WIDTH
     page.window.height = HEIGHT
+    
+    page.window.min_height = HEIGHT
+    page.window.min_width = WIDTH
+    page.window.max_height = HEIGHT
+    page.window.max_width = WIDTH
+    
 
 
     # FIXME: Camera Vision stuff; still broken
@@ -51,6 +58,7 @@ def main(page: ft.Page):
             ft.DataColumn(ft.Text("DATE")),
             ft.DataColumn(ft.Text("TIME")),
             ft.DataColumn(ft.Text("NAME")),
+            ft.DataColumn(ft.Text("COURSE, YEAR, & SECTION")),
             ft.DataColumn(ft.Text("STATUS")),
         ],
         rows = [], 
@@ -65,7 +73,7 @@ def main(page: ft.Page):
         heading_row_color = ft.Colors.SURFACE_CONTAINER_LOW,
         columns = [
             ft.DataColumn(ft.Text("DATE")),
-            ft.DataColumn(ft.Text("TIME")),
+            ft.DataColumn(ft.Text("START TIME")),
             ft.DataColumn(ft.Text("SUBJECT CODE")),
             ft.DataColumn(ft.Text("INSTRUCTOR")),
         ],
@@ -84,6 +92,7 @@ def main(page: ft.Page):
                         ft.DataCell(ft.Text(str(row['date']))),
                         ft.DataCell(ft.Text(str(row['time']))),
                         ft.DataCell(ft.Text(row['student_name'])),
+                        ft.DataCell(ft.Text(f"{row['course']} {row['year_level']}{row['section']}")),
                         ft.DataCell(ft.Text(row['attendance_status'])),
                     ]
                 )
@@ -146,7 +155,6 @@ def main(page: ft.Page):
         ft.DropdownOption(text = 'Prof. J. Marfil'),
         ft.DropdownOption(text = 'Dr. R.A. Torres'),
     ]
-
 
 
     # ID Scanner page
@@ -266,6 +274,7 @@ def main(page: ft.Page):
                             width = 290,
                             height = 50,
                             content = ft.Text("CONFIRM"),
+                            on_click =  update_class_list,
                         ),], margin = 20, spacing = 20,
                     ), 
                 ),
@@ -275,6 +284,7 @@ def main(page: ft.Page):
                         width = 250,
                         height = 40,
                         content = ft.Text("NEW ATTENDANCE SHEET"),
+                        on_click = lambda e: new_sheet()
                     ),
                     dt_classes
                 ], spacing = 20,)
@@ -286,11 +296,92 @@ def main(page: ft.Page):
     )
 
     # Dashboard page
-    page_4 = ft.Container(ft.Text(value="4"))
+    page_4 = ft.Container(ft.Text(value="DASHBOARD HERE!!!"))
+    
+    # New sheet page
+    page_5 = ft.Column([
+        ft.Row([
+            ft.Text(value = "NEW ATTENDANCE SHEET",
+            style = ft.TextStyle(
+                weight = ft.FontWeight.BOLD,
+                size = 25,
+                color = ft.Colors.ON_SURFACE_VARIANT
+            )),
+            ft.IconButton(
+                icon = ft.Icons.CANCEL_OUTLINED,
+                icon_size = 28,
+                on_click = lambda e: cancel_new_sheet()
+            )
+        ], spacing = 100, alignment = ft.CrossAxisAlignment.CENTER),
+        ft.Container(
+            bgcolor = ft.Colors.SURFACE_CONTAINER,
+            border_radius = 20,
+            width = 480,
+            height = 320,
+            content = ft.Column([
+                ft.Row([
+                    ft.TextField(
+                        border_color = ft.Colors.SURFACE_BRIGHT,
+                        width = 200,
+                        height = 50,
+                        border_radius = 10,
+                        label = ft.Text("Start Time"),
+                        hint_text = "07:30",
+                    ),
+                    ft.TextField(
+                        border_color = ft.Colors.SURFACE_BRIGHT,
+                        width = 200,
+                        height = 50,
+                        border_radius = 10,
+                        label = ft.Text("End Time"),
+                        hint_text = "09:30",
+                    ),
+                ], spacing = 20),
+                ft.Container(
+                    width = 420,
+                    height = 50,
+                    content = ft.Dropdown(
+                        expand = True,
+                        bgcolor = ft.Colors.SURFACE_CONTAINER_HIGH,
+                        border_color = ft.Colors.SURFACE_BRIGHT,
+                        label = ft.Text("Subject"),
+                        options = subject_options,
+                    )
+                ),
+                ft.Container(
+                    width = 420,
+                    height = 50,
+                    content = ft.Dropdown(
+                        expand = True,
+                        bgcolor = ft.Colors.SURFACE_CONTAINER_HIGH,
+                        border_color = ft.Colors.SURFACE_BRIGHT,
+                        label = ft.Text("Instructor"),
+                        options = instructor_options,
+                    )
+                ),
+                ft.Button(
+                    bgcolor = ft.Colors.SURFACE_CONTAINER_HIGH,
+                    width = 240,
+                    height = 50,
+                    content = ft.Text("CREATE"),
+                    margin = ft.Margin(240, 0, 0, 0)
+                )
+            ], alignment = ft.Alignment.TOP_CENTER, margin = 30, spacing = 20)
+        ),], 
+        horizontal_alignment = ft.CrossAxisAlignment.CENTER,
+        margin = ft.Margin(0, 60, 0, 0), spacing = 20)
+    
 
     # Page Container
     current_page = ft.Container(content = page_1)
 
+
+    # New Sheet button
+    def new_sheet():
+        current_page.content = page_5
+        
+    def cancel_new_sheet():
+        current_page.content = page_3
 
     # Navigation buttons
     def set_page(e):
@@ -307,7 +398,6 @@ def main(page: ft.Page):
         elif i == 3:
             current_page.content = page_4
         page.update()
-    
     navbar = ft.NavigationBar(destinations = [
         ft.NavigationBarDestination(
             icon = ft.Icons.IMAGE,
@@ -336,7 +426,9 @@ def main(page: ft.Page):
 
         # Changeable content
         ft.SafeArea(
-            current_page
+            align = ft.Alignment.CENTER,
+            
+            content = current_page
         )
     )
     

@@ -146,9 +146,10 @@ def get_attendance_log():
         curs = conn.cursor()
 
         sql = """
-            SELECT   a.date, a.time, st.student_name, a.attendance_status
+            SELECT   a.date, a.time, st.student_name, e.course, e.year_level, e.section, a.attendance_status
             FROM tbl_attendance a
             JOIN tbl_student st ON a.student_id = st.student_id
+            JOIN tbl_enrollment e ON e.student_id = st.student_id
             WHERE a.attendance_status NOT IN ('Absent')
         """
         
