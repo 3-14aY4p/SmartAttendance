@@ -3,6 +3,10 @@ import flet as ft
 import threading
 from datetime import datetime, time, date
 
+
+#Change
+import base64
+
 # Custom files for handling
 import handlers.dbhandler as db
 import handlers.cvhandler as cv
@@ -29,22 +33,36 @@ def main(page: ft.Page):
 
 
     # FIXME: Camera Vision stuff; still broken
+    # CHANGED: Camera now working but scanning still broken; also, the way frames are updated is really bad and causes a lot of lag; need to find a better way to do this 
     frame_bytes = None
     camera_preview = ft.Image(
-        src = frame_bytes,
-        fit = ft.BoxFit.FILL
+        src="placeholder",
+        width=760,
+        height=540,
+        fit="contain",
     )
+    camera_preview.src_base64 = ""
+    
     video_container = ft.Container(
-        # content = camera_preview,
+        content = camera_preview,
         margin = ft.Margin(0, 0, 0, 60),
         bgcolor = ft.Colors.SURFACE_CONTAINER,
         border_radius = 30,
         width = 760,
         height = 540
     )
+
+    def on_detect(student_id):
+        pass
+
     # threading.Thread(target = cv.update_frames, args = (page, camera_preview), daemon = True).start()
-    
-    
+    threading.Thread(
+        target=cv.update_frames,
+        args=(page, camera_preview, on_detect),
+        daemon=True
+    ).start()
+
+
     # Database Tables
     dt_attendance = ft.DataTable(
         align = ft.Alignment.CENTER,
