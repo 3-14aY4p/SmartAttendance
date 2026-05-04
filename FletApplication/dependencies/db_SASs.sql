@@ -1,189 +1,101 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `db_SmartAttendance`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_instructor`
---
-
-CREATE TABLE `tbl_instructor` (
-  `instructor_id` varchar(20) NOT NULL,
-  `instructor_name` varchar(130) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_subject`
---
-
-CREATE TABLE `tbl_subject` (
+CREATE TABLE `subject` (
   `subject_id` varchar(20) NOT NULL,
-  `subject_title` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `subject_title` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`subject_id`)
+);
 
--- --------------------------------------------------------
+CREATE TABLE `instructor` (
+  `instructor_id` varchar(20) NOT NULL,
+  `instructor_name` varchar(130) DEFAULT NULL,
+  `password` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`instructor_id`)
+);
 
---
--- Table structure for table `tbl_student`
---
-
-CREATE TABLE `tbl_student` (
+CREATE TABLE `student` (
   `student_id` varchar(20) NOT NULL,
-  `student_name` varchar(130) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `first_name` varchar(75) DEFAULT NULL,
+  `middle_name` varchar(50) DEFAULT NULL,
+  `last_name` varchar(50) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `gender` enum('male', 'female') DEFAULT NULL,
+  PRIMARY KEY (`student_id`)
+);
 
+CREATE TABLE `course` (
+  `course_id` varchar(10) NOT NULL,
+  `course_title` varchar(160) DEFAULT NULL,
+  PRIMARY KEY (`course_id`)
+);
 
--- --------------------------------------------------------
+CREATE TABLE `block` (
+  `block_id` int(11) NOT NULL AUTO_INCREMENT,
+  `course_id` varchar(10) DEFAULT NULL,
+  `year_level` int(1) DEFAULT NULL,
+  `section` char(1) DEFAULT NULL,
+  `school_year` varchar(10) DEFAULT NULL,
+  `semester` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`block_id`),
+  FOREIGN KEY (`course_id`) REFERENCES `course`(`course_id`)
+);
 
---
--- Table structure for table `tbl_enrollment`
---
+CREATE TABLE `class` (
+  `class_id` int(11),
+  `subject_id` varchar(20),
+  `instructor_id` varchar(20),
+  `block_id` int(11),
+  PRIMARY KEY (`class_id`),
+  FOREIGN KEY (`subject_id`) REFERENCES `subject`(`subject_id`),
+  FOREIGN KEY (`instructor_id`) REFERENCES `instructor`(`instructor_id`),
+  FOREIGN KEY (`block_id`) REFERENCES `block`(`block_id`)
+);
 
-CREATE TABLE `tbl_enrollment` (
-  `enrollment_id` int(11) NOT NULL,
+CREATE TABLE `enrollment` (
+  `enrollment_id` int(11) NOT NULL AUTO_INCREMENT,
   `student_id` varchar(20) DEFAULT NULL,
-  `semester` varchar(20) DEFAULT NULL,
-  `school_year` varchar(20) DEFAULT NULL,
-  `course` varchar(20) DEFAULT NULL,
-  `year_level` int(11) DEFAULT NULL,
-  `section` char(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `block_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`enrollment_id`),
+  FOREIGN KEY (`student_id`) REFERENCES `student`(`student_id`),
+  FOREIGN KEY (`block_id`) REFERENCES `block`(`block_id`)
+);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_subjects_enrolled`
---
-
-CREATE TABLE `tbl_subjects_enrolled` (
+CREATE TABLE `subject_enrollment` (
   `enrollment_id` int(11) NOT NULL,
-  `subject_id` varchar(20) DEFAULT NULL,
-  `instructor_id`varchar(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `subject_id` varchar(20) NOT NULL,
+  `instructor_id` varchar(20) NOT NULL,
+  PRIMARY KEY (`enrollment_id`, `subject_id`),
+  FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment`(`enrollment_id`),
+  FOREIGN KEY (`subject_id`) REFERENCES `subject`(`subject_id`),
+  FOREIGN KEY (`instructor_id`) REFERENCES `instructor`(`instructor_id`)
+);
 
--- --------------------------------------------------------
+CREATE TABLE `schedule` (
+  `schedule_id` int(11) NOT NULL AUTO_INCREMENT,
+  `class_id` int(11) DEFAULT NULL,
+  `sched_start` time DEFAULT NULL,
+  `sched_end` time DEFAULT NULL,
+  `day_of_week` enum('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday') DEFAULT NULL,
+  PRIMARY KEY (`schedule_id`),
+  FOREIGN KEY (`class_id`) REFERENCES `class`(`class_id`)
+);
 
---
--- Table structure for table `tbl_attendance`
---
-
-CREATE TABLE `tbl_attendance` (
-  `attendance_id` int(11) NOT NULL,
+CREATE TABLE `attendance` (
+  `attendance_id` int(11) NOT NULL AUTO_INCREMENT,
   `subject_id` varchar(20) DEFAULT NULL,
   `instructor_id` varchar(20) DEFAULT NULL,
   `student_id` varchar(20) DEFAULT NULL,
   `date` date DEFAULT curdate(),
   `time` time DEFAULT curtime(),
-  `class_start` time DEFAULT NULL,
-  `class_end` time DEFAULT NULL,
-  `attendance_status` varchar(20) DEFAULT "Absent"
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `session_type` enum('regular', 'makeup') DEFAULT NULL,
+  `session_start` time DEFAULT NULL,
+  `session_end` time DEFAULT NULL,
+  `status` enum('on time', 'late', 'absent') DEFAULT 'absent',
+  PRIMARY KEY (`attendance_id`),
+  FOREIGN KEY (`subject_id`) REFERENCES `subject`(`subject_id`),
+  FOREIGN KEY (`instructor_id`) REFERENCES `instructor`(`instructor_id`),
+  FOREIGN KEY (`student_id`) REFERENCES `student`(`student_id`)
+);
 
--- --------------------------------------------------------
-
---
--- Indexes for dumped tables
---
-
-
---
--- Indexes for table `instructor`
---
-ALTER TABLE `tbl_instructor`
-  ADD PRIMARY KEY (`instructor_id`);
-
---
--- Indexes for table `subject`
---
-ALTER TABLE `tbl_subject`
-  ADD PRIMARY KEY (`subject_id`);
-
---
--- Indexes for table `student`
---
-ALTER TABLE `tbl_student`
-  ADD PRIMARY KEY (`student_id`);
-
---
--- Indexes for table `tbl_enrollment`
---
-ALTER TABLE `tbl_enrollment`
-  ADD PRIMARY KEY (`enrollment_id`),
-  ADD KEY `student_id` (`student_id`);
-
---
--- Indexes for table `subjects_enrolled`
---
-ALTER TABLE `tbl_subjects_enrolled`
-  ADD KEY `enrollment_id` (`enrollment_id`),
-  ADD KEY `subject_id` (`subject_id`),
-  ADD KEY `instructor_id` (`instructor_id`);
-
---
--- Indexes for table `tbl_attendance`
---
-ALTER TABLE `tbl_attendance`
-  ADD PRIMARY KEY (`attendance_id`),
-  ADD KEY `subject_id` (`subject_id`),
-  ADD KEY `instructor_id` (`instructor_id`),
-  ADD KEY `student_id` (`student_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `attendance`
---
-ALTER TABLE `tbl_attendance`
-  MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `enrollment`
---
-ALTER TABLE `tbl_enrollment`
-  MODIFY `enrollment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `tbl_attendance`
---
-ALTER TABLE `tbl_attendance`
-  ADD CONSTRAINT `tbl_attendance_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `tbl_student` (`student_id`),
-  ADD CONSTRAINT `tbl_attendance_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `tbl_subject` (`subject_id`),
-  ADD CONSTRAINT `tbl_attendance_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `tbl_instructor` (`instructor_id`);
-  
---
--- Constraints for table `tbl_enrollment`
---
-ALTER TABLE `tbl_enrollment`
-  ADD CONSTRAINT `tbl_enrollment_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `tbl_student` (`student_id`);
-
---
--- Constraints for table `tbl_subjects_enrolled`
---
-ALTER TABLE `tbl_subjects_enrolled`
-  ADD CONSTRAINT `tbl_subjects_enrolled_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollment` (`enrollment_id`),
-  ADD CONSTRAINT `tbl_subjects_enrolled_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `tbl_subject` (`subject_id`),
-  ADD CONSTRAINT `tbl_subjects_enrolled_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `tbl_instructor` (`instructor_id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
